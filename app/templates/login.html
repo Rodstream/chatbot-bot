@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Raúl BECHA SA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        becha: {
+                            red: '#D94234',
+                            darkred: '#C13A2E',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #D94234 0%, #C13A2E 100%);
+        }
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+    </style>
+    <script>
+        if (localStorage.getItem('darkMode') === '1') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <img src="/static/becha-logo.jpg" alt="Becha SA" class="w-20 h-20 rounded-full object-cover mx-auto mb-4">
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Raúl</h1>
+            <p class="text-gray-500 dark:text-gray-400">Asistente BECHA SA</p>
+        </div>
+
+        <!-- Error message -->
+        <div id="error-msg" class="hidden bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-4">
+            Usuario o contraseña incorrectos
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-6">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Usuario</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-becha-red transition"
+                    placeholder="Ingresá tu usuario"
+                    autocomplete="off"
+                >
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-becha-red transition"
+                    placeholder="Ingresá tu contraseña"
+                    autocomplete="off"
+                >
+            </div>
+
+            <button
+                type="submit"
+                id="login-btn"
+                class="w-full bg-becha-red hover:bg-becha-darkred text-white py-3 px-4 rounded-xl font-medium transition disabled:opacity-50"
+            >
+                Iniciar sesión
+            </button>
+        </form>
+
+        <p class="text-center text-gray-400 dark:text-gray-500 text-sm mt-6">
+            Sistema interno BECHA SA
+        </p>
+    </div>
+
+    <script>
+        const form = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-msg');
+        const loginBtn = document.getElementById('login-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Ingresando...';
+            errorMsg.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    errorMsg.textContent = data.detail || 'Usuario o contraseña incorrectos';
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorMsg.textContent = 'Error de conexión';
+                errorMsg.classList.remove('hidden');
+            }
+
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Iniciar sesión';
+        });
+    </script>
+</body>
+</html>
